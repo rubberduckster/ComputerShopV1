@@ -22,13 +22,10 @@ namespace YourProjectName
 
             // 1 Lambda Expression
 
-            // Func<Product, bool> is a generic delegate:
-            // takes a Product as input and returns a bool (true/false).
-            // The lambda is the condition stored inside the delegate.
-            Func<Product, bool> expensiveProduct = product => product.Price > 10000 || product.Department == "Skærm";
+            // a. Lambda expression for products above 5000 kr.
+            Func<Product, bool> expensiveProduct = product => product.Price > 5000m;
 
-            // Where uses the delegate on each Product.
-            // Products where it returns true are kept.
+            // b. Filter products using the lambda expression
             var expensiveProducts = products.Where(expensiveProduct);
 
             Console.WriteLine("Expensive Products and screens: ");
@@ -37,14 +34,24 @@ namespace YourProjectName
                 Console.WriteLine(product.Name);
             }
 
-            // Another Func<Product, bool> delegate containing a different condition.
-            Func<Product, bool> midRangeProduct = product => product.Price >= 1000 && product.Price <= 10000m && product.Department != "Tilbehør";
+            // c. Products above 10000 kr. OR in the "Skærm" department
+            Func<Product, bool> expensiveOrScreen =product => product.Price > 10000m || product.Department == "Skærm";
 
-            // Where filters using the delegate.
-            // OrderByDescending then sorts the remaining products from highest to lowest price.
+            var expensiveOrScreenProducts = products.Where(expensiveOrScreen);
+
+            Console.WriteLine("\nProducts above 10000 kr. or screens:");
+            foreach (Product product in expensiveOrScreenProducts)
+            {
+                Console.WriteLine($"{product.Name} - {product.Price} kr.");
+            }
+
+            // d. Products between 1000 and 10000 kr. that are not accessories
+            Func<Product, bool> midRangeProduct = product => product.Price >= 1000m && product.Price <= 10000m && product.Department != "Tilbehør";
+
+            // e. Filter and sort from highest to lowest price
             var sortedProducts = products.Where(midRangeProduct).OrderByDescending(product => product.Price);
 
-            Console.WriteLine("\nProducts ranging the 1000-10.000 price, minus accessory products:");
+            Console.WriteLine("\nProducts ranging the 1000-10.000 price, excluding accessories:");
             foreach (Product product in sortedProducts)
             {
                 Console.WriteLine(product.Name);
@@ -52,8 +59,7 @@ namespace YourProjectName
 
             // 3 Anonymous Types
 
-            // Select chooses which data we want from each Product.
-            // new { } creates an anonymous type - a temporary object without a named class.
+            // a. Selects the name, department and price using an anonymous type.
             var productInfo = products.Select(product => new
             {
                 product.Name,
@@ -63,28 +69,51 @@ namespace YourProjectName
 
             // 4 Query Operators
 
-            // Where filters the collection using a condition.
+            // Find all computers
             var allComputers = products.Where(product => product.Department == "Computer");
 
+            Console.WriteLine("Computers");
+            foreach (Product product in allComputers)
+            {
+                Console.WriteLine($"{product.Name} - {product.Price} kr.");
+            }
+
+            // Find all products above 1000 kr.
             var priceyProducts = products.Where(product => product.Price > 1000m);
 
-            // OrderBy sorts from lowest to highest.
+            Console.WriteLine("\nProducts above 1000 kr.");
+            foreach (Product product in priceyProducts)
+            {
+                Console.WriteLine($"{product.Name} - {product.Price} kr.");
+            }
+
+            // Sort products by price
             var priceOrder = products.OrderBy(product => product.Price);
 
-            // MaxBy returns the Product with the highest Price.
-            // ? because MaxBy can return null if the collection is empty.
+            Console.WriteLine("\nProducts sorted by price");
+            foreach (Product product in priceOrder)
+            {
+                Console.WriteLine($"{product.Name} - {product.Price} kr.");
+            }
+
+            // Find the most expensive product
             Product? mostExpensiveProduct = products.MaxBy(product => product.Price);
 
-            // Count returns how many products are in the collection.
+            Console.WriteLine("\nMost expensive product");
+            if (mostExpensiveProduct != null)
+            {
+                Console.WriteLine($"{mostExpensiveProduct.Name} - {mostExpensiveProduct.Price} kr.");
+            }
+
+            // Count all products
             int productCount = products.Count();
 
-            // We ain't printing all that
+            Console.WriteLine("\nProduct count");
+            Console.WriteLine($"Number of products: {productCount}");
 
             // 5 Query Expressions
 
-            // Query Expression - another syntax for writing LINQ queries.
-            // This does basically the same thing as:
-            // products.OrderBy(product => product.Price)
+            // Sort products by price using query syntax
             var priceSortedProducts =
                 from product in products
                 orderby product.Price
@@ -96,11 +125,9 @@ namespace YourProjectName
                 Console.WriteLine($"{product.Name}: {product.Price} kr.");
             }
 
-            // 6
-            // Expression Tree:
-            // Unlike a normal Func delegate, this represents the lambda as data/code structure
-            // that can be inspected. Technologies like EF Core can use expression trees
-            // to understand and translate expressions, for example into SQL.
+            // 6 Expression Tree
+
+            // Stores the lambda as an expression tree that can be inspected
             Expression<Func<Product, bool>> expensiveProductExpression = product => product.Price > 5000;
         }
     }
